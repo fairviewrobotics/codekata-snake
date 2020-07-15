@@ -11,10 +11,10 @@ class Game(val keys: List<String>, val observeKey: String) {
 
     // locations of each player, as an array of cells
     // index 0 is head
-    val players = arrayOf(mutableListOf(Pair(0, 0)), mutableListOf(Pair(34, 0)), mutableListOf(Pair(0, 34)), mutableListOf(Pair(34, 34)))
+    val players = arrayOf(mutableListOf(Pair(0, 0)), mutableListOf(Pair(24, 0)), mutableListOf(Pair(0, 24)), mutableListOf(Pair(24, 24)))
 
     // location of the food
-    var food = Pair(17, 17)
+    var food = Pair(12, 12)
 
     // if players are dead
     val dead = arrayOf(false, false, false, false)
@@ -63,8 +63,8 @@ class Game(val keys: List<String>, val observeKey: String) {
          * that is also not occupied by a player */
         var maxDist = 0
         var newLoc = Pair(0, 0)
-        for(x in 0..34) {
-            for(y in 0..34) {
+        for(x in 0..24) {
+            for(y in 0..24) {
                 val occupied = players.any {player -> player.any {cell -> cell == Pair(x, y)}}
                 if(occupied) continue
 
@@ -102,7 +102,7 @@ class Game(val keys: List<String>, val observeKey: String) {
 
             var newX = player[0].first + xAdj
             var newY = player[0].second + yAdj
-            if(newX < 0 || newX >= 35 || newY < 0 || newY >= 35) {
+            if(newX < 0 || newX >= 25 || newY < 0 || newY >= 25) {
                 dead[i] = true
                 newX = player[0].first
                 newY = player[0].second
@@ -157,7 +157,7 @@ class Game(val keys: List<String>, val observeKey: String) {
 
         return "{" +
                 "\"dead\": ${dead.map {d -> if(d) "true" else "false"}}, " +
-                "\"made-move\": ${moved.map {m -> if(m) "true" else "false"}}}"
+                "\"moved\": ${moved.map {m -> if(m) "true" else "false"}}}"
     }
 
     fun apiMoveNeeded(key: String): String {
@@ -172,7 +172,7 @@ class Game(val keys: List<String>, val observeKey: String) {
         if(player == -1) return "{\"error\": \"invalid key\"}"
 
         /* generate blank board */
-        val board = Array(35) { Array(35) { -1 } }
+        val board = Array(25) { Array(25) { -1 } }
 
         /* create reordered copy of players array from perspective of player */
         val adjPlayers = listOf(players[player]) + players.filterIndexed {i, _ -> i != player}

@@ -1,7 +1,7 @@
 # Codekata-Snake
 
 ## Game 
-Codekata-Snake is played by 4 players on a 35x35 board.
+Codekata-Snake is played by 4 players on a 25x25 board.
 
 Each player controls a snake (a chain of cells, with one cell being the head, and the rest forming a body that follows the head).
 
@@ -21,11 +21,11 @@ The last player left alive wins. If all remaining players die on the same turn, 
 Each player's snake starts with a length of 1.
 
 - Player 0 starts at 0,0
-- Player 1 starts at 34,0
-- Player 2 starts at 0,34
-- Player 3 starts at 34,34
+- Player 1 starts at 24,0
+- Player 2 starts at 0,24
+- Player 3 starts at 24,24
 
-The food starts at 17,17. Once it is eaten, it will be moved to a new cell.
+The food starts at 12,12. Once it is eaten, it will be moved to a new cell.
 
 ## Game API
 
@@ -50,9 +50,9 @@ Returns the state of the game, in the following format:
         ...
     ],
 "heads":
-    [[0, 0], [0, 34], [34, 0], [34, 34]],
+    [[0, 0], [0, 24], [24, 0], [24, 24]],
 "food":
-    [17, 17]
+    [12, 12]
 }
 ```
 
@@ -85,8 +85,12 @@ There is a special observation key. By default, it is `observe0`. In real compet
 ```json
 {
   "dead": [false, true, false, true],
-  "made-move": [false, true, false, true]
+  "moved": [false, true, false, true]
 }
 ```
 
 If the observation key is used on `/api/board`, the state of the board will be returned, with indexes cooresponding to player numbers.
+
+## Credits
+- Implementation: Edward Wawrzynek
+- Thanks to Saurabh Totey & Elia Gorokhovsky for [the original implementation](https://github.com/FHSCodeClub/Code-Kata-Snek)
