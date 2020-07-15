@@ -50,7 +50,7 @@ Returns the state of the game, in the following format:
         ...
     ],
 "heads":
-    [[0, 0], [0, 24], [24, 0], [24, 24]],
+    [[0, 0], [0, 34], [34, 0], [34, 34]],
 "food":
     [17, 17]
 }
@@ -58,7 +58,7 @@ Returns the state of the game, in the following format:
 
 The `food` field of the response indicates the location of the food (`[x, y]`).
 
-The `heads` field of the response indicates the location of each player's head. Your head location is at index 0, and your opponents are at indicies 1, 2, and 3. ('[[x, y], [x, y], ...]`).
+The `heads` field of the response indicates the location of each player's head. Your head location is at index 0, and your opponents are at indicies 1, 2, and 3. (`[[x, y], [x, y], ...]`).
 
 The `board` field of the response indicates the state of each cell. It is indexed as `[x][y]`. For each cell, `-1` indicates it is not occupied, `0` indicates it is occupied by you, and `1`, `2`, and `3` indicate it is occupied by an opponent. Food is not marked in the `board` field. Use the `food` field (documented above) to figure out where food is located.
 

@@ -34,7 +34,7 @@ repositories {
 }
 
 jar {
-    baseName='Black Knights Spring 2020 Code Competition'
+    baseName='Black Knights Summer 2020 Code Competition'
     version="1.0.0"
     from {
         (configurations.runtime).collect {
