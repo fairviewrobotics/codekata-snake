@@ -46,6 +46,9 @@ function drawProgress(progress) {
     const moved = progress.moved;
     const dead = progress.dead;
 
+    render.fillStyle = "white";
+    render.fillRect(0, 0, width, 55);
+
     for(let i = 0; i < 4; i++) {
         render.fillStyle = playerToColor(i);
         render.roundRect(i * width/4 + 5, 5, width/4 - 10, 45, 5).fill();
@@ -54,8 +57,19 @@ function drawProgress(progress) {
         render.textAlign = "center";
         render.fillStyle = "white";
         render.fillText(`Player ${i}`, (i + 0.5) * width/4, 23, width/4 - 20);
-        render.fillText((dead[i] ? "Dead" : "Alive") + " - " + (moved[i] ? "M" : "W"),(i + 0.5) * width/4, 43, width/4 - 20);
+        render.fillText((dead[i] ? "Dead" : "Alive") + " - " + (moved[i] ? "Moved" : "Waiting"),(i + 0.5) * width/4, 43, width/4 - 20);
 
+        if(dead[i]) {
+            render.beginPath()
+            render.moveTo(i*width/4 + 5, 5);
+            render.lineTo((i+1)*width/4 - 5, 50);
+            render.stroke();
+            render.beginPath();
+            render.moveTo((i+1)*width/4 - 5, 5);
+            render.lineTo(i*width/4 + 5, 50);
+            render.stroke();
+
+        }
     }
 }
 
