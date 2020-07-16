@@ -13,7 +13,7 @@ import kotlin.random.Random
 @RequestMapping(value = ["/api"])
 class GameController {
 
-    private val game = Game(listOf("key0", "key1", "key2", "key3"), "observe0")
+    private val game = Game(listOf(System.getenv()["SNAKE_PLAYER0_KEY"] ?: "key0", System.getenv()["SNAKE_PLAYER1_KEY"] ?: "key1", System.getenv()["SNAKE_PLAYER2_KEY"] ?: "key2", System.getenv()["SNAKE_PLAYER3_KEY"] ?: "key3"), System.getenv()["SNAKE_OBSERVE_KEY"] ?: "observe0")
 
     /* get the state of the game */
     @RequestMapping(value = ["/board"], method = [RequestMethod.GET], produces = ["application/json"])

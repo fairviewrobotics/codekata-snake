@@ -143,7 +143,7 @@ class Game(val keys: List<String>, val observeKey: String) {
 
         // add new head locations to players
         players.forEachIndexed { i, player ->
-            if(!dead[i]) player.add(0, newHeads[i])
+            player.add(0, newHeads[i])
         }
 
         if(doMoveFood) moveFood()
