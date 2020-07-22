@@ -61,37 +61,26 @@ class Game(val keys: List<String>, val observeKey: String) {
     }
 
     // move food to a new location
-    /*fun moveFood() {
+    fun moveFood() {
         turnsFoodNotEaten = 0
-        /* pick location with largest average distance away from any heads,
-         * that is also not occupied by a player */
-        var maxDist = 0
-        var newLoc = Pair(0, 0)
+        /* pick a random location that is not in a player and has at least distance 5 from all heads */
+        val validLocs = mutableListOf<Pair<Int, Int>>()
+
         for(x in 0..24) {
             for(y in 0..24) {
                 val occupied = players.any {player -> player.any {cell -> cell == Pair(x, y)}}
                 if(occupied) continue
 
-                val dist = players.sumBy { player ->
+                val dists = players.map { player ->
                     abs(player[0].first - x) + abs(player[0].second - y)
                 }
 
-                if(dist > maxDist) {
-                    maxDist = dist
-                    newLoc = Pair(x, y)
-                }
+                if((dists.min() ?: 100) < 10) continue
+                validLocs.add(Pair(x, y))
             }
         }
 
-        food = newLoc
-    }*/
-
-    fun moveFood() {
-        turnsFoodNotEaten = 0
-
-        food = Pair(Random.nextInt(0, 24), Random.nextInt(0, 24))
-
-        if(players.any {player -> player.any {cell -> cell == food}}) moveFood()
+        food = if(validLocs.isNotEmpty()) validLocs.random() else Pair(0, 0)
     }
 
     // run a turn
