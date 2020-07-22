@@ -26,6 +26,8 @@ class Game(val keys: List<String>, val observeKey: String) {
     // 0 - left, 1 - up, 2 - right, 3 - down
     val moves = arrayOf(-1, -1, -1, -1)
 
+    var turnsFoodNotEaten = 0
+
     // check if all player have moved
     fun allMovesMade(): Boolean {
         for (i in 0..3) {
@@ -59,6 +61,7 @@ class Game(val keys: List<String>, val observeKey: String) {
 
     // move food to a new location
     fun moveFood() {
+        turnsFoodNotEaten = 0
         /* pick location with largest average distance away from any heads,
          * that is also not occupied by a player */
         var maxDist = 0
@@ -68,9 +71,7 @@ class Game(val keys: List<String>, val observeKey: String) {
                 val occupied = players.any {player -> player.any {cell -> cell == Pair(x, y)}}
                 if(occupied) continue
 
-                val dist = players.filterIndexed{ i, _ ->
-                    !dead[i]
-                }.sumBy { player ->
+                val dist = players.sumBy { player ->
                     abs(player[0].first - x) + abs(player[0].second - y)
                 }
 
@@ -86,6 +87,7 @@ class Game(val keys: List<String>, val observeKey: String) {
 
     // run a turn
     fun doTurn() {
+        turnsFoodNotEaten++
         // calculate new head positions for each player
         val newHeads = players.mapIndexed {i, player ->
             val dir = moves[i]
@@ -147,6 +149,9 @@ class Game(val keys: List<String>, val observeKey: String) {
         }
 
         if(doMoveFood) moveFood()
+        if(turnsFoodNotEaten > 20) {
+            moveFood()
+        }
 
         resetTurn()
     }
