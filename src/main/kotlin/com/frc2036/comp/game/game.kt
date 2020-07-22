@@ -1,6 +1,7 @@
 package com.frc2036.comp.game
 
 import kotlin.math.abs
+import kotlin.random.Random
 
 /* TODO: refactor players as structures separate from the game instance */
 
@@ -60,7 +61,7 @@ class Game(val keys: List<String>, val observeKey: String) {
     }
 
     // move food to a new location
-    fun moveFood() {
+    /*fun moveFood() {
         turnsFoodNotEaten = 0
         /* pick location with largest average distance away from any heads,
          * that is also not occupied by a player */
@@ -83,6 +84,14 @@ class Game(val keys: List<String>, val observeKey: String) {
         }
 
         food = newLoc
+    }*/
+
+    fun moveFood() {
+        turnsFoodNotEaten = 0
+
+        food = Pair(Random.nextInt(0, 24), Random.nextInt(0, 24))
+
+        if(players.any {player -> player.any {cell -> cell == food}}) moveFood()
     }
 
     // run a turn
@@ -149,7 +158,7 @@ class Game(val keys: List<String>, val observeKey: String) {
         }
 
         if(doMoveFood) moveFood()
-        if(turnsFoodNotEaten > 20) {
+        if(turnsFoodNotEaten > 60) {
             moveFood()
         }
 
