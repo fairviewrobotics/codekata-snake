@@ -58,6 +58,14 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
         }
     }
 
+    // reset api keys
+    fun resetKeys() {
+        for(i in 0 until 4) {
+            keys[i] = ""
+            names[i] = "Player $i"
+        }
+    }
+
     // check if all player have moved
     fun allMovesMade(): Boolean {
         for (i in 0..3) {
@@ -259,6 +267,14 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
     }
 
     fun apiReset(key: String): String {
+        if(key != adminKey) return "{\"error\": \"invalid key\"}"
+
+        reset()
+        resetKeys()
+        return "{\"error\": null}"
+    }
+
+    fun apiSoftReset(key: String): String {
         if(key != adminKey) return "{\"error\": \"invalid key\"}"
 
         reset()

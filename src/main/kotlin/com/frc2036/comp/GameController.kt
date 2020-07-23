@@ -47,6 +47,12 @@ class GameController {
         return game.apiReset(key)
     }
 
+    @RequestMapping(value = ["/soft_reset"], method = [RequestMethod.POST], produces = ["application/json"])
+    @Synchronized
+    fun postSoftReset(@RequestParam key: String): String {
+        return game.apiSoftReset(key)
+    }
+
     @RequestMapping(value = ["/set_player"], method = [RequestMethod.POST], produces = ["application/json"])
     @Synchronized
     fun postPlayer(@RequestParam key: String, @RequestParam index: Int, @RequestParam name: String, @RequestParam playerKey: String): String {
