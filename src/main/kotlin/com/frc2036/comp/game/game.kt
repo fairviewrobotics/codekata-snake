@@ -55,8 +55,6 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
             dead[i] = false
             moved[i] = false
             moves[i] = -1
-            names[i] = "Player $i"
-            keys[i] = ""
         }
     }
 
