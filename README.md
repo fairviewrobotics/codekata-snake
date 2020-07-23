@@ -81,15 +81,38 @@ Players should NOT use these api routes. They should only be used if you are wri
 
 There is a special observation key. By default, it is `observe0`. In real competition, it will be something else.
 
-#### `GET /api/progress - param(key: String)`
+#### `GET /api/progress - params(key: String)`
 ```json
 {
   "dead": [false, true, false, true],
-  "moved": [false, true, false, true]
+  "moved": [false, true, false, true],
+  "lengths": [1, 1, 1, 1],
+  "winner": -1,
+  "names": ["Player 0", "Player 1", "Player 2", "Player 3"],
+  "turn": 0
 }
 ```
+`dead` indicates which players have died. `moved` indicates which players have sent in their moves for the current turn. `lengths` indicates the current length of the snakes. `winner` indicates who has won the game, or `-1` if no player has won. `names` indicates the names of the player. `turn` indicates the current turn number.
 
-If the observation key is used on `/api/board`, the state of the board will be returned, with indexes cooresponding to player numbers.
+If the observation key is used on `/api/board`, the state of the board will be returned, with indexes corresponding to player numbers.
+
+## Game Admin API
+
+Players should NOT use these api routes. For testing the default setup should work fine. If you are running a real competition, you should use this api.
+
+There is a special admin key. By default, it is `admin0`. In real competition, it will be something else.
+
+#### `POST/api/reset - params(key: String)`
+Resets the state of the game, and disables players api keys (they will need to be set with `/api/set_player`).
+
+#### `POST /api/set_player - params(key: String, index: Int, name: String, playerKey: String)`
+Set the name and key for the given player.
+
+### Environment Variable Config
+The server uses the following environment variables to modify its behavior:
+- `SNAKE_OBSERVE_KEY`: set the observation key. If not set, defaults to `observe0`.
+- `SNAKE_ADMIN_KEY`: sets the admin key. If not set, defaults to `admin0`.
+- `SNAKE_NO_DEFAULT_KEYS`: if set, player keys will be disabled until `/api/set_player` calls are made. If not set, player keys are `key0`, `key1`, `key2`, and `key3`
 
 ## Credits
 - Implementation: Edward Wawrzynek

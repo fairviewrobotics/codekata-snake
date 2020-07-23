@@ -45,6 +45,8 @@ function playerToColor(player) {
 function drawProgress(progress) {
     const moved = progress.moved;
     const dead = progress.dead;
+    const names = progress.names;
+    const lengths = progress.lengths;
 
     render.fillStyle = "white";
     render.fillRect(0, 0, width, 55);
@@ -56,8 +58,8 @@ function drawProgress(progress) {
         render.font = "15px monospace";
         render.textAlign = "center";
         render.fillStyle = "white";
-        render.fillText(`Player ${i}`, (i + 0.5) * width/4, 23, width/4 - 20);
-        render.fillText((dead[i] ? "Dead" : "Alive") + " - " + (moved[i] ? "Moved" : "Waiting"),(i + 0.5) * width/4, 43, width/4 - 20);
+        render.fillText(names[i], (i + 0.5) * width/4, 23, width/4 - 20);
+        render.fillText((dead[i] ? "Dead" : "Alive") + " - " + (moved[i] ? "Moved" : "Waiting") + " - [" + lengths[i] + "]", (i + 0.5) * width/4, 43, width/4 - 20);
 
         if(dead[i]) {
             render.beginPath()
@@ -71,6 +73,19 @@ function drawProgress(progress) {
 
         }
     }
+}
+
+function drawWinner(winner, names, turn, x, y, w, h) {
+    render.fillStyle = "white";
+    render.fillRect(x, y, w, h);
+
+    render.font = "15px monospace";
+    render.textAlign = "center";
+    render.fillStyle = "black";
+
+    render.fillText("Turn: " + turn + (winner != -1 ? " - " + names[winner] + " wins!" : ""), x + w/2, y + h/2, w - 10);
+
+    return true;
 }
 
 function drawBoard(board, x, y, w, h) {
@@ -104,8 +119,9 @@ function drawBoardSquare(board, xOff, yOff, size) {
 async function main() {
     const progress = await JSON.parse(await (await fetch(`/api/progress?key=${apiKey}`)).text());
     if(progress != null) drawProgress(progress);
+    drawWinner(progress.winner, progress.names, progress.turn, 5, 60, width - 10, 20);
     const board = await JSON.parse(await (await fetch(`/api/board?key=${apiKey}`)).text());
-    if(board != null) drawBoard(board, 5, 60, width - 10, height - 70);
+    if(board != null) drawBoard(board, 5, 85, width - 10, height - 95);
 }
 
 window.setInterval(main, 500);

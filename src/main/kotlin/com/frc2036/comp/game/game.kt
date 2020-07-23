@@ -1,14 +1,14 @@
 package com.frc2036.comp.game
 
 import kotlin.math.abs
+import kotlin.math.min
 import kotlin.random.Random
 
 /* TODO: refactor players as structures separate from the game instance */
 
-class Game(val keys: List<String>, val observeKey: String) {
-    init {
-        assert(keys.size == 4)
-    }
+class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: Boolean) {
+    /* empty player keys are invalid */
+    val keys = if(defaultPlayerKeys) mutableListOf("key0", "key1", "key2", "key3") else mutableListOf("", "", "", "")
 
     // locations of each player, as an array of cells
     // index 0 is head
@@ -27,7 +27,38 @@ class Game(val keys: List<String>, val observeKey: String) {
     // 0 - left, 1 - up, 2 - right, 3 - down
     val moves = arrayOf(-1, -1, -1, -1)
 
+    var turns = 0
+    var winner = -1
+
     var turnsFoodNotEaten = 0
+
+    // names of each player
+    val names = mutableListOf("Player 0", "Player 1", "Player 2", "Player 3")
+
+    // get player index for key
+    fun playerFromKey(key: String): Int? {
+        if(key == "") return null
+
+        val index = keys.indexOf(key)
+        return if(index == -1) null else index
+    }
+
+    // reset state of the game
+    fun reset() {
+        food = Pair(12, 12)
+        turnsFoodNotEaten = 0
+        turns = 0
+        winner = -1
+
+        for(i in 0 until 4) {
+            players[i] = arrayOf(mutableListOf(Pair(0, 0)), mutableListOf(Pair(24, 0)), mutableListOf(Pair(0, 24)), mutableListOf(Pair(24, 24)))[i]
+            dead[i] = false
+            moved[i] = false
+            moves[i] = -1
+            names[i] = "Player $i"
+            keys[i] = ""
+        }
+    }
 
     // check if all player have moved
     fun allMovesMade(): Boolean {
@@ -49,7 +80,7 @@ class Game(val keys: List<String>, val observeKey: String) {
     // cache a move by a player
     // returns false if the key is invalid or player dead, true otherwise
     fun registerMove(key: String, move: Int): Boolean {
-        val player = keys.indexOf(key)
+        val player = playerFromKey(key) ?: -1
         if (player == -1 || dead[player] || moved[player]) return false
 
         moves[player] = move
@@ -83,9 +114,38 @@ class Game(val keys: List<String>, val observeKey: String) {
         food = if(validLocs.isNotEmpty()) validLocs.random() else Pair(0, 0)
     }
 
+    // check for a winner, and set winner if somebody has won
+    fun checkWinner() {
+        if(winner != -1) return
+        val alive = dead.count { d -> !d}
+
+        if(alive == 0 || turns > 4096) {
+            val maxLen = players.map { p -> p.size }.max() ?: 0
+            val numMaxLen = players.count { p -> p.size >= maxLen }
+
+            if(numMaxLen == 1) {
+                winner = players.indexOfFirst { p -> p.size >= maxLen }
+            } else {
+                val distsToFood = players.map { p -> abs(food.first - p[0].first) + abs(food.second - p[0].second) }
+                val minDist = distsToFood.min() ?: 0
+                val numMin = distsToFood.count { d -> d <= minDist}
+
+                if(numMin == 1) {
+                    winner = distsToFood.indexOfFirst { d -> d <= minDist }
+                } else {
+                    winner = 0
+                }
+            }
+        } else if(alive == 1) {
+            winner = dead.indexOfFirst { d -> !d }
+            return
+        }
+    }
+
     // run a turn
     fun doTurn() {
         turnsFoodNotEaten++
+        turns++
         // calculate new head positions for each player
         val newHeads = players.mapIndexed {i, player ->
             val dir = moves[i]
@@ -143,7 +203,8 @@ class Game(val keys: List<String>, val observeKey: String) {
 
         // add new head locations to players
         players.forEachIndexed { i, player ->
-            player.add(0, newHeads[i])
+            if(!player.any { cell -> cell == newHeads[i]})
+                player.add(0, newHeads[i])
         }
 
         if(doMoveFood) moveFood()
@@ -151,6 +212,7 @@ class Game(val keys: List<String>, val observeKey: String) {
             moveFood()
         }
 
+        checkWinner()
         resetTurn()
     }
 
@@ -160,18 +222,22 @@ class Game(val keys: List<String>, val observeKey: String) {
 
         return "{" +
                 "\"dead\": ${dead.map {d -> if(d) "true" else "false"}}, " +
-                "\"moved\": ${moved.map {m -> if(m) "true" else "false"}}}"
+                "\"moved\": ${moved.map {m -> if(m) "true" else "false"}}, " +
+                "\"lengths\": ${players.map {player -> player.size}}, " +
+                "\"winner\": $winner, " +
+                "\"names\": ${names.map {n -> "\"$n\""}}, " +
+                "\"turn\": $turns}"
     }
 
     fun apiMoveNeeded(key: String): String {
-        val player = keys.indexOf(key)
-        if(player == -1) return "{\"error\": \"invalid key\"}"
+        val player = playerFromKey(key) ?: -1
+        if(player == -1) return "false"
 
         return if(!moved[player] && !dead[player]) "true" else "false"
     }
 
     fun apiBoard(key: String): String {
-        val player = if(key == observeKey) 0 else keys.indexOf(key)
+        val player = if(key == observeKey) 0 else playerFromKey(key) ?: -1
         if(player == -1) return "{\"error\": \"invalid key\"}"
 
         /* generate blank board */
@@ -192,5 +258,22 @@ class Game(val keys: List<String>, val observeKey: String) {
                 "\"food\": [${food.first}, ${food.second}]," +
                 "\"heads\": ${adjPlayers.map {p -> "[${p[0].first}, ${p[0].second}]"}}" +
                 "}"
+    }
+
+    fun apiReset(key: String): String {
+        if(key != adminKey) return "{\"error\": \"invalid key\"}"
+
+        reset()
+        return "{\"error\": null}"
+    }
+
+    fun apiSetPlayer(key: String, index: Int, name: String, playerKey: String): String {
+        if(key != adminKey) return "{\"error\": \"invalid key\"}"
+        if(index >= 4 || index < 0) return "{\"error\": \"invalid player index\"}"
+
+        names[index] = name
+        keys[index] = playerKey
+
+        return "{\"error\": null}"
     }
 }

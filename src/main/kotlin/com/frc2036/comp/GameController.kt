@@ -13,7 +13,7 @@ import kotlin.random.Random
 @RequestMapping(value = ["/api"])
 class GameController {
 
-    private val game = Game(listOf(System.getenv()["SNAKE_PLAYER0_KEY"] ?: "key0", System.getenv()["SNAKE_PLAYER1_KEY"] ?: "key1", System.getenv()["SNAKE_PLAYER2_KEY"] ?: "key2", System.getenv()["SNAKE_PLAYER3_KEY"] ?: "key3"), System.getenv()["SNAKE_OBSERVE_KEY"] ?: "observe0")
+    private val game = Game(System.getenv()["SNAKE_OBSERVE_KEY"] ?: "observe0", System.getenv()["SNAKE_ADMIN_KEY"] ?: "admin0", System.getenv("SNAKE_NO_DEFAULT_KEYS") == null)
 
     /* get the state of the game */
     @RequestMapping(value = ["/board"], method = [RequestMethod.GET], produces = ["application/json"])
@@ -39,5 +39,17 @@ class GameController {
     @Synchronized
     fun getMoveNeeded(@RequestParam key: String): String {
         return game.apiMoveNeeded(key)
+    }
+
+    @RequestMapping(value = ["/reset"], method = [RequestMethod.POST], produces = ["application/json"])
+    @Synchronized
+    fun postReset(@RequestParam key: String): String {
+        return game.apiReset(key)
+    }
+
+    @RequestMapping(value = ["/set_player"], method = [RequestMethod.POST], produces = ["application/json"])
+    @Synchronized
+    fun postPlayer(@RequestParam key: String, @RequestParam index: Int, @RequestParam name: String, @RequestParam playerKey: String): String {
+        return game.apiSetPlayer(key, index, name, playerKey)
     }
 }
