@@ -58,4 +58,10 @@ class GameController {
     fun postPlayer(@RequestParam key: String, @RequestParam index: Int, @RequestParam name: String, @RequestParam playerKey: String): String {
         return game.apiSetPlayer(key, index, name, playerKey)
     }
+
+    @RequestMapping(value = ["/set_config"], method = [RequestMethod.POST], produces = ["application/json"])
+    @Synchronized
+    fun postConfig(@RequestParam key: String, @RequestParam turnsForFood: Int, @RequestParam turnsForWin: Int): String {
+        return game.apiSetConfig(key, turnsForFood, turnsForWin)
+    }
 }

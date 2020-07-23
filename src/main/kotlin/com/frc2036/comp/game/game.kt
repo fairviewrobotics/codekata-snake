@@ -32,6 +32,9 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
 
     var turnsFoodNotEaten = 0
 
+    var TURNS_TO_MOVE_FOOD = 60
+    var TURNS_TO_FORCE_END = 4096
+
     // names of each player
     val names = mutableListOf("Player 0", "Player 1", "Player 2", "Player 3")
 
@@ -125,7 +128,7 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
         if(winner != -1) return
         val alive = dead.count { d -> !d}
 
-        if(alive == 0 || turns > 4096) {
+        if(alive == 0 || turns > TURNS_TO_FORCE_END) {
             val maxLen = players.map { p -> p.size }.max() ?: 0
             val numMaxLen = players.count { p -> p.size >= maxLen }
 
@@ -214,7 +217,7 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
         }
 
         if(doMoveFood) moveFood()
-        if(turnsFoodNotEaten > 60) {
+        if(turnsFoodNotEaten > TURNS_TO_MOVE_FOOD) {
             moveFood()
         }
 
@@ -287,6 +290,15 @@ class Game(val observeKey: String, val adminKey: String, val defaultPlayerKeys: 
 
         names[index] = name
         keys[index] = playerKey
+
+        return "{\"error\": null}"
+    }
+
+    fun apiSetConfig(key: String, turnsForFood: Int, turnsForWin: Int): String {
+        if(key != adminKey) return "{\"error\": \"invalid key\"}"
+        
+        TURNS_TO_MOVE_FOOD = turnsForFood
+        TURNS_TO_FORCE_END = turnsForWin
 
         return "{\"error\": null}"
     }
