@@ -122,6 +122,8 @@ async function main() {
     drawWinner(progress.winner, progress.names, progress.turn, 5, 60, width - 10, 20);
     const board = await JSON.parse(await (await fetch(`/api/board?key=${apiKey}`)).text());
     if(board != null) drawBoard(board, 5, 85, width - 10, height - 95);
+
+    window.setTimeout(main, 350);
 }
 
-window.setInterval(main, 500);
+window.setTimeout(main, 500);
